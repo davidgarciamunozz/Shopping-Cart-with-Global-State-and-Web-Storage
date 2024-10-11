@@ -23,6 +23,8 @@ class Dashboard extends HTMLElement {
     
     connectedCallback() {
         this.render();
+        this.addEventListener('add-to-cart', this.handleAddToCart);
+
         getProducts().then((products) => {
             //store products on local storage
             set('products', products, false);
@@ -32,7 +34,22 @@ class Dashboard extends HTMLElement {
             console.log(storedProducts);
 
         });
+    }
+    handleAddToCart = (event : any) => {
+        const product = event.detail;
+        const currentCart = get('cartProducts', initialState.cartProducts);
+
+        // Add the new product to the cart
+        currentCart.push(product);
         
+        // Update the cart in local storage
+        set('cartProducts', currentCart, false);
+        
+        // Update the global state
+        dispatch({ type: 'SET_CART_PRODUCTS', payload: currentCart });
+        
+        console.log('Product added to cart:', product);
+        console.log('Updated cart:', currentCart);
     }
     updateProducts = () => {
         // Clear previous products

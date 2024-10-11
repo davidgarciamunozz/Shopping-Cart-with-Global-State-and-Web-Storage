@@ -26,6 +26,24 @@ class Product extends HTMLElement {
 
     connectedCallback() {
         this.render();
+        this.shadowRoot?.querySelector('button')?.addEventListener('click', this.handleAddToCart);
+    }
+    handleAddToCart = () => {
+        const productDetails = {
+            image: this.image,
+            title: this.title,
+            description: this.description,
+            category: this.category,
+            price: this.price,
+            rating: this.rating
+        };
+        const event = new CustomEvent('add-to-cart', {
+            detail: productDetails,
+            bubbles: true,
+            composed: true,
+        });
+
+        this.dispatchEvent(event);
     }
 
     attributeChangedCallback(name: string, oldValue: string, newValue: string) {
