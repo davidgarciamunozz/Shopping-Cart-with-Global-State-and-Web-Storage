@@ -24,9 +24,7 @@ class Dashboard extends HTMLElement {
     connectedCallback() {
         this.render();
         getProducts().then((products) => {
-            products.forEach((product:any) => {
-                this.createProduct(product);
-            });
+            //store products on local storage
             set('products', products, false);
             //store products on global state from local storage
             const storedProducts = get('products', initialState.products);
