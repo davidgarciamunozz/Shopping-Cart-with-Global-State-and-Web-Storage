@@ -3,6 +3,7 @@ import { initialState } from '../store/store';
 import { dispatch } from '../store/store';
 import { setProducts } from '../store/actions';
 import { addObserver } from '../store/store';
+import { addProductToCart } from '../store/actions';
 //import Product component
 import Product, {ProductType } from '../components/Product/Product';
 
@@ -24,14 +25,17 @@ class Dashboard extends HTMLElement {
     connectedCallback() {
         this.render();
         this.addEventListener('add-to-cart', this.handleAddToCart);
-
+        
         getProducts().then((products) => {
             //store products on local storage
             set('products', products, false);
             //store products on global state from local storage
             const storedProducts = get('products', initialState.products);
             dispatch(setProducts(storedProducts));
-            console.log(storedProducts);
+            //get cart products from local storage
+            const storedCartProducts = get('cartProducts', initialState.cartProducts);
+            //update global state with cart products
+            dispatch(addProductToCart(storedCartProducts));
 
         });
     }
@@ -39,17 +43,22 @@ class Dashboard extends HTMLElement {
         const product = event.detail;
         const currentCart = get('cartProducts', initialState.cartProducts);
 
-        // Add the new product to the cart
-        currentCart.push(product);
+        //validate if the product is already in the cart
+        const productIndex = currentCart.findIndex((cartProduct: any) => cartProduct.id === product.id);
+        if (productIndex !== -1) {
+            currentCart[productIndex].quantity += 1;
+        } else {
+            currentCart.push({
+                ...product,
+                quantity: 1
+            });
+        }
         
         // Update the cart in local storage
         set('cartProducts', currentCart, false);
         
         // Update the global state
-        dispatch({ type: 'SET_CART_PRODUCTS', payload: currentCart });
-        
-        console.log('Product added to cart:', product);
-        console.log('Updated cart:', currentCart);
+        dispatch(addProductToCart(currentCart));
     }
     updateProducts = () => {
         // Clear previous products
@@ -67,6 +76,7 @@ class Dashboard extends HTMLElement {
     
     createProduct = (product: any) => {
         const productElement = new Product();
+        productElement.setAttribute(ProductType.ID, product.id);    
         productElement.setAttribute(ProductType.IMAGE, product.image);
         productElement.setAttribute(ProductType.TITLE, product.title);
         productElement.setAttribute(ProductType.DESCRIPTION, product.description);
@@ -74,7 +84,7 @@ class Dashboard extends HTMLElement {
         productElement.setAttribute(ProductType.PRICE, product.price);
         productElement.setAttribute(ProductType.RATING, product.rating.rate);
         
-        //append product to container
+        //append product to containers
         this.shadowRoot?.querySelector('.product-container')?.appendChild(productElement);
     }
 

@@ -1,4 +1,5 @@
 export enum ProductType {
+    ID = 'id',
     IMAGE = 'image',
     TITLE = 'title',
     DESCRIPTION = 'description',
@@ -8,6 +9,7 @@ export enum ProductType {
 }
 
 class Product extends HTMLElement {
+    public uid: string = '';
     public image: string = '';
     public title: string = '';
     public description: string = '';
@@ -30,6 +32,7 @@ class Product extends HTMLElement {
     }
     handleAddToCart = () => {
         const productDetails = {
+            id: this.id,
             image: this.image,
             title: this.title,
             description: this.description,
@@ -49,6 +52,9 @@ class Product extends HTMLElement {
     attributeChangedCallback(name: string, oldValue: string, newValue: string) {
         if (oldValue !== newValue) {
             switch(name) {
+                case 'id':
+                    this.uid = parseFloat(newValue).toFixed(2);
+                    break;
                 case 'image':
                     this.image = newValue;
                     break;

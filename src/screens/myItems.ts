@@ -1,3 +1,6 @@
+//import global state services
+import { initialState } from "../store/store";
+
 class MyCart extends HTMLElement {
     constructor () {
         super ();
@@ -19,3 +22,5 @@ class MyCart extends HTMLElement {
         }
     }
 }
+
+customElements.define('my-cart', MyCart);
